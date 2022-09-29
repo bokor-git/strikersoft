@@ -1,0 +1,52 @@
+version: "3.7"
+
+services:
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: ./dockerfile
+      args:
+        - PORT = ${PORT}
+    env_file:
+      - ./.env
+    ports:
+      - 3000:${PORT}
+    depends_on:
+      - postgress
+    links:
+      - postgress:postgress
+    volumes:
+      - ./:/api
+      - /api/node_modules/
+    networks:
+      default:
+
+  postgress:
+    container_name: postgress
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/data/postgress
+    env_file:
+      - ./.env
+    networks:
+      default:
+
+  pgadmin_ss:
+    links:
+      - postgress:postgress
+    container_name: pgadmin_ss
+    image: dpage/pgadmin4
+    ports:
+      - "8000:80"
+    volumes:
+      - db_data:/root/.pgadmin
+    env_file:
+      - ./.env
+    networks:
+      default:
+
+volumes:
+  db_data:
